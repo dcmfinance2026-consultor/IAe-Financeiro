@@ -1,0 +1,1750 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>IAê Financeiro — Diagnóstico Financeiro PJ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+<style>
+  :root {
+    /* ── Paleta IAê Financeiro ── */
+    --green-deep:  #1d3a2a;   /* verde escuro principal (fundo header, texto forte) */
+    --green-mid:   #2d5a3d;   /* verde médio (nav ativa, hover) */
+    --green-soft:  #e8f0eb;   /* verde clarinho (backgrounds suaves) */
+    --gold:        #c8860a;   /* dourado âmbar (destaque, ícone, acento) */
+    --gold-light:  #f5e6c0;   /* dourado claro (badge, bg sutil) */
+    --gold-bright: #e9a825;   /* dourado vibrante (CTA, hover) */
+    --warn:        #b83232;
+    --light:       #f7f8f6;   /* off-white quente */
+    --surface:     #ffffff;
+    --border:      #d6ddd8;
+    --text:        #1a2620;
+    --muted:       #5a6b61;
+    --radius:      10px;
+    --radius-sm:   6px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    background: var(--light); color: var(--text); font-size: 15px;
+  }
+
+  /* ── HEADER ── */
+  header {
+    background: var(--green-deep);
+    color: #fff; padding: 0 40px;
+    display: flex; align-items: center; justify-content: space-between;
+    min-height: 72px; position: relative; overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: repeating-linear-gradient(
+      -45deg,
+      transparent, transparent 18px,
+      rgba(255,255,255,.025) 18px, rgba(255,255,255,.025) 19px
+    );
+    pointer-events: none;
+  }
+  .header-brand { display: flex; align-items: center; gap: 14px; z-index: 1; }
+  .header-logo {
+    width: 46px; height: 46px; border-radius: 10px;
+    background: var(--gold); display: flex; align-items: center; justify-content: center;
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.15rem; font-weight: 700; color: var(--green-deep); letter-spacing: -1px;
+    flex-shrink: 0; box-shadow: 0 2px 8px rgba(0,0,0,.3);
+  }
+  .header-text h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.1rem; font-weight: 700; letter-spacing: .2px;
+    color: #fff; line-height: 1.2;
+  }
+  .header-text h1 span { color: var(--gold-bright); }
+  .header-text p { font-size: .78rem; color: rgba(255,255,255,.6); margin-top: 2px; letter-spacing: .3px; }
+  .header-tag {
+    z-index: 1; font-size: .72rem; font-weight: 600; letter-spacing: .8px;
+    text-transform: uppercase; color: var(--gold-bright);
+    border: 1px solid rgba(200,134,10,.4); padding: 5px 12px; border-radius: 20px;
+    background: rgba(200,134,10,.08);
+  }
+
+  /* ── TABS ── */
+  nav.tabs {
+    background: var(--surface); border-bottom: 1px solid var(--border);
+    display: flex; overflow-x: auto;
+    box-shadow: 0 1px 0 var(--border);
+  }
+  nav.tabs button {
+    padding: 13px 20px; border: none; background: none;
+    font-family: 'Inter', sans-serif;
+    font-size: .82rem; font-weight: 600; color: var(--muted);
+    cursor: pointer; white-space: nowrap; border-bottom: 2px solid transparent;
+    margin-bottom: -1px; transition: all .18s; letter-spacing: .2px;
+  }
+  nav.tabs button.active { color: var(--green-deep); border-bottom-color: var(--gold); }
+  nav.tabs button:hover:not(.active) { color: var(--text); background: var(--green-soft); }
+
+  /* ── LAYOUT ── */
+  main { max-width: 900px; margin: 0 auto; padding: 28px 20px 60px; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* ── CARDS ── */
+  .card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 26px 30px; margin-bottom: 20px;
+    box-shadow: 0 1px 3px rgba(0,0,0,.06);
+  }
+  .card h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: .9rem; font-weight: 700; color: var(--green-deep);
+    text-transform: uppercase; letter-spacing: .8px; margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 2px solid var(--green-soft);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .card h2::before {
+    content: ''; display: inline-block; width: 3px; height: 16px;
+    background: var(--gold); border-radius: 2px; flex-shrink: 0;
+  }
+  .card h3 {
+    font-size: .8rem; font-weight: 700; color: var(--gold);
+    margin: 20px 0 10px; text-transform: uppercase; letter-spacing: .6px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .card h3::after {
+    content: ''; flex: 1; height: 1px; background: var(--gold-light); margin-left: 4px;
+  }
+
+  /* ── FORM ELEMENTS ── */
+  .field { margin-bottom: 16px; }
+  label { display: block; font-size: .8rem; font-weight: 600; color: var(--muted); margin-bottom: 5px; letter-spacing: .2px; }
+  input[type=text], input[type=number], select, textarea {
+    width: 100%; padding: 9px 12px; border: 1px solid var(--border);
+    border-radius: var(--radius-sm); font-size: .88rem; color: var(--text);
+    background: var(--surface); transition: border-color .18s, box-shadow .18s;
+    font-family: 'Inter', sans-serif;
+  }
+  input:focus, select:focus, textarea:focus {
+    outline: none; border-color: var(--gold);
+    box-shadow: 0 0 0 3px rgba(200,134,10,.12);
+  }
+  textarea { resize: vertical; min-height: 72px; }
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+  .outros-field { margin-top: 8px; }
+  .outros-field input[type=text] { max-width: 480px; }
+
+  /* ── RADIO / CHECK GROUP ── */
+  .options { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 5px; }
+  .options label {
+    display: flex; align-items: center; gap: 6px; font-weight: 500;
+    color: var(--text); cursor: pointer; padding: 6px 13px;
+    border: 1px solid var(--border); border-radius: 20px;
+    font-size: .82rem; transition: all .15s; background: var(--surface);
+  }
+  .options label:hover { border-color: var(--gold); background: var(--gold-light); }
+  .options input[type=radio], .options input[type=checkbox] { accent-color: var(--gold); }
+  .options input:checked + span { font-weight: 700; }
+  .options label:has(input:checked) {
+    border-color: var(--gold); background: var(--gold-light); color: var(--green-deep);
+  }
+
+  /* ── SCORE SLIDER ── */
+  .score-row {
+    display: grid; grid-template-columns: 210px 1fr 60px;
+    align-items: center; gap: 14px; padding: 11px 0;
+    border-bottom: 1px solid var(--green-soft);
+  }
+  .score-row:last-child { border-bottom: none; }
+  .score-row span { font-size: .86rem; font-weight: 600; color: var(--text); }
+  input[type=range] { accent-color: var(--gold); width: 100%; cursor: pointer; }
+  .score-val {
+    font-size: 1rem; font-weight: 800; color: var(--green-deep);
+    text-align: center; background: var(--green-soft);
+    border-radius: var(--radius-sm); padding: 4px 8px;
+    font-family: 'Space Grotesk', sans-serif;
+  }
+
+  /* ── BUTTONS ── */
+  .btn {
+    padding: 10px 22px; border: none; border-radius: var(--radius-sm);
+    font-size: .88rem; font-weight: 700; cursor: pointer; transition: all .18s;
+    font-family: 'Inter', sans-serif; letter-spacing: .2px;
+  }
+  .btn-primary { background: var(--green-deep); color: #fff; }
+  .btn-primary:hover { background: var(--green-mid); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(29,58,42,.25); }
+  .btn-accent { background: var(--gold); color: var(--green-deep); }
+  .btn-accent:hover { background: var(--gold-bright); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(200,134,10,.3); }
+  .btn-outline { background: transparent; border: 2px solid var(--green-deep); color: var(--green-deep); }
+  .btn-outline:hover { background: var(--green-soft); }
+  .actions { display: flex; gap: 12px; margin-top: 24px; flex-wrap: wrap; }
+
+  /* ── BADGES ── */
+  .badge {
+    display: inline-block; padding: 2px 10px; border-radius: 12px;
+    font-size: .72rem; font-weight: 700; text-transform: uppercase; letter-spacing: .4px;
+  }
+  .badge-red { background: #fde8e8; color: var(--warn); }
+  .badge-yellow { background: var(--gold-light); color: var(--gold); }
+  .badge-green { background: var(--green-soft); color: var(--green-mid); }
+
+  /* ── REPORT OUTPUT ── */
+  #report-output {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 40px 44px;
+    display: none; margin-top: 24px;
+    box-shadow: 0 4px 16px rgba(0,0,0,.08);
+  }
+  #report-output h1 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 1.55rem; color: #fff; margin-bottom: 4px;
+  }
+  #report-output .subtitle { color: rgba(255,255,255,.7); font-size: .88rem; margin-bottom: 28px; }
+  #report-output h2 {
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: .88rem; color: var(--green-deep); text-transform: uppercase;
+    letter-spacing: .7px; margin: 30px 0 12px;
+    padding-bottom: 8px; border-bottom: 2px solid var(--green-soft);
+    display: flex; align-items: center; gap: 8px;
+  }
+  #report-output h2::before {
+    content: ''; display: inline-block; width: 3px; height: 14px;
+    background: var(--gold); border-radius: 2px;
+  }
+  #report-output h3 { font-size: .88rem; color: var(--gold); margin: 16px 0 6px; font-weight: 700; }
+  #report-output p { line-height: 1.75; margin-bottom: 8px; font-size: .88rem; }
+  #report-output ul { padding-left: 18px; margin-bottom: 10px; }
+  #report-output ul li { font-size: .88rem; line-height: 1.75; }
+  .report-header {
+    background: linear-gradient(135deg, var(--green-deep) 0%, #2d5a3d 100%);
+    color: #fff; margin: -40px -44px 30px; padding: 30px 44px;
+    border-radius: var(--radius) var(--radius) 0 0;
+    position: relative; overflow: hidden;
+  }
+  .report-header::after {
+    content: 'IAê'; position: absolute; right: 40px; top: 50%;
+    transform: translateY(-50%);
+    font-family: 'Space Grotesk', sans-serif;
+    font-size: 5rem; font-weight: 800; color: rgba(255,255,255,.06);
+    pointer-events: none; letter-spacing: -2px;
+  }
+  .report-header h1 { color: #fff; font-family: 'Space Grotesk', sans-serif; }
+  .report-header h1 span { color: var(--gold-bright); }
+  .report-header .subtitle { color: rgba(255,255,255,.65); }
+  .score-summary {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 12px; margin: 16px 0;
+  }
+  .score-box {
+    background: var(--light); border-radius: var(--radius-sm); padding: 16px;
+    text-align: center; border: 1px solid var(--border);
+  }
+  .score-box .num {
+    font-size: 2rem; font-weight: 800; color: var(--green-deep);
+    font-family: 'Space Grotesk', sans-serif;
+  }
+  .score-box .lbl { font-size: .7rem; color: var(--muted); margin-top: 4px; text-transform: uppercase; letter-spacing: .4px; }
+  .radar-table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+  .radar-table th, .radar-table td {
+    padding: 9px 14px; border: 1px solid var(--border); font-size: .85rem;
+  }
+  .radar-table th { background: var(--green-soft); font-weight: 700; color: var(--green-deep); }
+  .bar-wrap { background: #dce5de; border-radius: 20px; height: 8px; flex: 1; }
+  .bar-fill { height: 8px; border-radius: 20px; background: var(--green-mid); transition: width .4s; }
+  .bar-fill.warn { background: var(--gold); }
+  .bar-fill.danger { background: var(--warn); }
+  .action-table { width: 100%; border-collapse: collapse; margin: 12px 0; }
+  .action-table th {
+    background: var(--green-deep); color: #fff;
+    padding: 9px 14px; font-size: .8rem; text-align: left; letter-spacing: .3px;
+    font-family: 'Space Grotesk', sans-serif;
+  }
+  .action-table td { padding: 9px 14px; border: 1px solid var(--border); font-size: .84rem; vertical-align: top; }
+  .action-table tr:nth-child(even) td { background: var(--light); }
+  .print-btn { display: none; }
+  @media print {
+    nav.tabs, header, .actions, #generate-btn-wrap { display: none !important; }
+    #report-output { display: block !important; box-shadow: none; border: none; padding: 0; }
+    body { background: #fff; }
+  }
+  .info-box {
+    background: var(--green-soft); border-left: 3px solid var(--gold);
+    padding: 11px 16px; border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+    font-size: .83rem; color: var(--green-deep); margin-bottom: 18px;
+    font-weight: 500;
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-brand">
+    <div class="header-logo">IAê</div>
+    <div class="header-text">
+      <h1>IAê <span>Financeiro</span></h1>
+      <p>Diagnóstico Financeiro PJ · Cortesia Estratégica BPO</p>
+    </div>
+  </div>
+  <div class="header-tag">Inteligência que organiza</div>
+</header>
+
+<nav class="tabs" id="mainTabs">
+  <button class="active" onclick="showTab('etapa1',this)">01 · Abertura</button>
+  <button onclick="showTab('etapa2',this)">02 · Perfil</button>
+  <button onclick="showTab('etapa3',this)">03 · Operacional</button>
+  <button onclick="showTab('etapa4',this)">04 · Estratégico</button>
+  <button onclick="showTab('etapa5',this)">05 · Dor & Impacto</button>
+  <button onclick="showTab('radar',this)">06 · Radar</button>
+  <button onclick="showTab('relatorio',this)">↗ Relatório</button>
+</nav>
+
+<main>
+
+<!-- ═══════════════════════════════════════════════
+     ETAPA 1 — ABERTURA
+════════════════════════════════════════════════ -->
+<div id="etapa1" class="tab-panel active">
+  <div class="info-box">💡 Bem-vindo! Responda as questões abaixo para que possamos entender o momento atual da sua empresa e como podemos ajudá-la.</div>
+
+  <div class="card">
+    <h2>📋 Etapa 1 — Abertura e Contextualização</h2>
+
+    <div class="field">
+      <label>1. Como você descreveria o momento atual da sua empresa?</label>
+      <div class="options">
+        <label><input type="radio" name="e1_historia" value="inicial" onchange="toggleOutros('e1_historia_outros',this,'outros')"> <span>Em fase inicial (até 2 anos)</span></label>
+        <label><input type="radio" name="e1_historia" value="crescimento" onchange="toggleOutros('e1_historia_outros',this,'outros')"> <span>Em crescimento acelerado</span></label>
+        <label><input type="radio" name="e1_historia" value="consolidada" onchange="toggleOutros('e1_historia_outros',this,'outros')"> <span>Consolidada, buscando eficiência</span></label>
+        <label><input type="radio" name="e1_historia" value="reestruturacao" onchange="toggleOutros('e1_historia_outros',this,'outros')"> <span>Em reestruturação</span></label>
+        <label><input type="radio" name="e1_historia" value="outros" onchange="toggleOutros('e1_historia_outros',this,'outros')"> <span>Outros</span></label>
+      </div>
+      <div id="e1_historia_outros" class="outros-field" style="display:none">
+        <input type="text" id="e1_historia_outros_text" placeholder="Descreva o momento da empresa...">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>2. Quais são os principais desafios financeiros que você enfrenta hoje? <small style="font-weight:400;color:var(--muted)">(selecione todos que se aplicam)</small></label>
+      <div class="options">
+        <label><input type="checkbox" id="e1_desafios_fluxo"> <span>Falta de controle do fluxo de caixa</span></label>
+        <label><input type="checkbox" id="e1_desafios_pjpf"> <span>Mistura de finanças pessoais e da empresa</span></label>
+        <label><input type="checkbox" id="e1_desafios_inadimplencia"> <span>Inadimplência de clientes</span></label>
+        <label><input type="checkbox" id="e1_desafios_relatorios"> <span>Falta de relatórios e visibilidade financeira</span></label>
+        <label><input type="checkbox" id="e1_desafios_precificacao"> <span>Dificuldade em precificar produtos/serviços</span></label>
+        <label><input type="checkbox" id="e1_desafios_dividas"> <span>Dívidas e capital de giro insuficiente</span></label>
+        <label><input type="checkbox" id="e1_desafios_outros" onchange="toggleOutrosCB('e1_desafios_outros_wrap',this)"> <span>Outros</span></label>
+      </div>
+      <div id="e1_desafios_outros_wrap" class="outros-field" style="display:none">
+        <input type="text" id="e1_desafios_outros_text" placeholder="Descreva outros desafios...">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>3. O que motivou seu interesse em melhorar a gestão financeira?</label>
+      <div class="options">
+        <label><input type="radio" name="e1_motivacao" value="crescimento" onchange="toggleOutros('e1_motivacao_outros',this,'outros')"> <span>Crescimento da empresa e necessidade de mais controle</span></label>
+        <label><input type="radio" name="e1_motivacao" value="dificuldades" onchange="toggleOutros('e1_motivacao_outros',this,'outros')"> <span>Dificuldades financeiras recentes</span></label>
+        <label><input type="radio" name="e1_motivacao" value="indicacao" onchange="toggleOutros('e1_motivacao_outros',this,'outros')"> <span>Indicação de parceiro ou cliente</span></label>
+        <label><input type="radio" name="e1_motivacao" value="custos" onchange="toggleOutros('e1_motivacao_outros',this,'outros')"> <span>Busca por redução de custos operacionais</span></label>
+        <label><input type="radio" name="e1_motivacao" value="outros" onchange="toggleOutros('e1_motivacao_outros',this,'outros')"> <span>Outros</span></label>
+      </div>
+      <div id="e1_motivacao_outros" class="outros-field" style="display:none">
+        <input type="text" id="e1_motivacao_outros_text" placeholder="Descreva o motivo...">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>4. Qual é o seu papel na gestão financeira da empresa?</label>
+      <div class="options">
+        <label><input type="radio" name="e1_papel" value="socio_tudo" onchange="toggleOutros('e1_papel_outros',this,'outros')"> <span>Sócio/Dono que cuida de tudo</span></label>
+        <label><input type="radio" name="e1_papel" value="gestor" onchange="toggleOutros('e1_papel_outros',this,'outros')"> <span>Gestor financeiro dedicado</span></label>
+        <label><input type="radio" name="e1_papel" value="socio_contador" onchange="toggleOutros('e1_papel_outros',this,'outros')"> <span>Sócio com apoio do contador</span></label>
+        <label><input type="radio" name="e1_papel" value="equipe" onchange="toggleOutros('e1_papel_outros',this,'outros')"> <span>Equipe financeira interna</span></label>
+        <label><input type="radio" name="e1_papel" value="outros" onchange="toggleOutros('e1_papel_outros',this,'outros')"> <span>Outros</span></label>
+      </div>
+      <div id="e1_papel_outros" class="outros-field" style="display:none">
+        <input type="text" id="e1_papel_outros_text" placeholder="Descreva seu papel...">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>5. O que você espera para a empresa nos próximos 12 meses? <small style="font-weight:400;color:var(--muted)">(selecione todos que se aplicam)</small></label>
+      <div class="options">
+        <label><input type="checkbox" id="e1_obj_faturamento"> <span>Aumentar o faturamento</span></label>
+        <label><input type="checkbox" id="e1_obj_custos"> <span>Reduzir custos operacionais</span></label>
+        <label><input type="checkbox" id="e1_obj_controle"> <span>Ter mais controle e visibilidade financeira</span></label>
+        <label><input type="checkbox" id="e1_obj_fiscal"> <span>Regularizar a situação fiscal/tributária</span></label>
+        <label><input type="checkbox" id="e1_obj_profissional"> <span>Profissionalizar a gestão</span></label>
+        <label><input type="checkbox" id="e1_obj_outros" onchange="toggleOutrosCB('e1_obj_outros_wrap',this)"> <span>Outros</span></label>
+      </div>
+      <div id="e1_obj_outros_wrap" class="outros-field" style="display:none">
+        <input type="text" id="e1_obj_outros_text" placeholder="Descreva seus objetivos...">
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-primary" onclick="showTab('etapa2', document.querySelectorAll('nav.tabs button')[1])">Próxima etapa →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     ETAPA 2 — PERFIL
+════════════════════════════════════════════════ -->
+<div id="etapa2" class="tab-panel">
+  <div class="info-box">💡 Informe os dados básicos da sua empresa para prosseguirmos com o diagnóstico.</div>
+
+  <div class="card">
+    <h2>🏢 Etapa 2 — Perfil e Estrutura da Empresa</h2>
+
+    <div class="grid-2">
+      <div class="field">
+        <label>Razão Social</label>
+        <input type="text" id="e2_razaosocial" placeholder="Nome da empresa">
+      </div>
+      <div class="field">
+        <label>CNPJ</label>
+        <input type="text" id="e2_cnpj" placeholder="00.000.000/0001-00">
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="field">
+        <label>Segmento / Atividade Principal</label>
+        <input type="text" id="e2_segmento" placeholder="Ex: Comércio, Serviços, Indústria...">
+      </div>
+      <div class="field">
+        <label>Regime Tributário</label>
+        <select id="e2_regime">
+          <option value="">Selecione...</option>
+          <option>Simples Nacional</option>
+          <option>Lucro Presumido</option>
+          <option>Lucro Real</option>
+          <option>MEI</option>
+          <option>Não sabe</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="grid-3">
+      <div class="field">
+        <label>Faturamento Médio Mensal (R$)</label>
+        <input type="text" id="e2_faturamento" placeholder="Ex: 150.000">
+      </div>
+      <div class="field">
+        <label>Nº de Funcionários</label>
+        <input type="number" id="e2_funcionarios" min="0" placeholder="Total">
+      </div>
+      <div class="field">
+        <label>Nº de Sócios</label>
+        <input type="number" id="e2_socios" min="1" placeholder="Qtd">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Distribuição de Funcionários</label>
+      <div class="options">
+        <label><input type="checkbox" id="e2_clt"> <span>CLT</span></label>
+        <label><input type="checkbox" id="e2_pj_func"> <span>PJ</span></label>
+        <label><input type="checkbox" id="e2_autonomos"> <span>Autônomos</span></label>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Pró-labore definido para os sócios?</label>
+      <div class="options">
+        <label><input type="radio" name="prolabore" value="sim"> <span>Sim, definido</span></label>
+        <label><input type="radio" name="prolabore" value="nao"> <span>Não</span></label>
+        <label><input type="radio" name="prolabore" value="parcial"> <span>Parcialmente</span></label>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="field">
+        <label>Sistema de Gestão (ERP)</label>
+        <select id="e2_erp">
+          <option value="">Selecione...</option>
+          <option>Omie</option>
+          <option>Conta Azul</option>
+          <option>Totvs</option>
+          <option>SAP</option>
+          <option>Netsuite</option>
+          <option>Bling</option>
+          <option>Excel / Google Sheets</option>
+          <option>Nenhum</option>
+          <option value="outros_erp">Outros</option>
+        </select>
+        <div id="e2_erp_outros_wrap" class="outros-field" style="display:none">
+          <input type="text" id="e2_erp_outros_text" placeholder="Nome do sistema utilizado...">
+        </div>
+      </div>
+      <div class="field">
+        <label>Utilização real do sistema</label>
+        <select id="e2_erp_uso">
+          <option value="">Selecione...</option>
+          <option>Uso completo</option>
+          <option>Uso parcial</option>
+          <option>Quase não utiliza</option>
+          <option>Não possui sistema</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Contador</label>
+      <div class="options">
+        <label><input type="radio" name="contador" value="interno"> <span>Interno (CLT)</span></label>
+        <label><input type="radio" name="contador" value="externo"> <span>Externo (escritório)</span></label>
+        <label><input type="radio" name="contador" value="nenhum"> <span>Nenhum</span></label>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Observações adicionais sobre a estrutura da empresa</label>
+      <div class="options">
+        <label><input type="checkbox" id="e2_obs_sede"> <span>Empresa com sede própria</span></label>
+        <label><input type="checkbox" id="e2_obs_filiais"> <span>Possui filiais ou unidades</span></label>
+        <label><input type="checkbox" id="e2_obs_holding"> <span>Faz parte de um grupo/holding</span></label>
+        <label><input type="checkbox" id="e2_obs_outros" onchange="toggleOutrosCB('e2_obs_outros_wrap',this)"> <span>Outros</span></label>
+      </div>
+      <div id="e2_obs_outros_wrap" class="outros-field" style="display:none">
+        <input type="text" id="e2_obs_outros_text" placeholder="Descreva informações adicionais...">
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-outline" onclick="showTab('etapa1', document.querySelectorAll('nav.tabs button')[0])">← Voltar</button>
+      <button class="btn btn-primary" onclick="showTab('etapa3', document.querySelectorAll('nav.tabs button')[2])">Próxima etapa →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     ETAPA 3 — DIAGNÓSTICO OPERACIONAL
+════════════════════════════════════════════════ -->
+<div id="etapa3" class="tab-panel">
+  <div class="info-box">💡 Responda sobre como funciona a gestão financeira do dia a dia na sua empresa.</div>
+
+  <div class="card">
+    <h2>⚙️ Etapa 3 — Diagnóstico Operacional Financeiro</h2>
+
+    <h3>3.1 Contas a Pagar e Receber</h3>
+    <div class="field">
+      <label>Como são registradas as contas a pagar e a receber?</label>
+      <div class="options">
+        <label><input type="radio" name="e3_registro_contas" value="erp" onchange="toggleOutros('e3_registro_outros',this,'outros')"> <span>Sistema/ERP integrado</span></label>
+        <label><input type="radio" name="e3_registro_contas" value="excel" onchange="toggleOutros('e3_registro_outros',this,'outros')"> <span>Planilha (Excel/Google Sheets)</span></label>
+        <label><input type="radio" name="e3_registro_contas" value="app" onchange="toggleOutros('e3_registro_outros',this,'outros')"> <span>Aplicativo financeiro (ex: Conta Azul)</span></label>
+        <label><input type="radio" name="e3_registro_contas" value="manual" onchange="toggleOutros('e3_registro_outros',this,'outros')"> <span>Anotações manuais/caderno</span></label>
+        <label><input type="radio" name="e3_registro_contas" value="outros" onchange="toggleOutros('e3_registro_outros',this,'outros')"> <span>Outros</span></label>
+      </div>
+      <div id="e3_registro_outros" class="outros-field" style="display:none">
+        <input type="text" id="e3_registro_outros_text" placeholder="Descreva como são registradas...">
+      </div>
+    </div>
+    <div class="field">
+      <label>Existe controle de vencimentos? Já houve pagamento em duplicidade ou juros por atraso?</label>
+      <div class="options">
+        <label><input type="radio" name="ctrl_venc" value="sim_sem_problemas"> <span>Sim, sem problemas</span></label>
+        <label><input type="radio" name="ctrl_venc" value="sim_com_problemas"> <span>Sim, mas já houve erros</span></label>
+        <label><input type="radio" name="ctrl_venc" value="nao"> <span>Não há controle</span></label>
+      </div>
+    </div>
+    <div class="field">
+      <label>Percentual médio de inadimplência estimado</label>
+      <select id="e3_inadimplencia">
+        <option value="">Selecione...</option>
+        <option>Menos de 2%</option>
+        <option>2% a 5%</option>
+        <option>5% a 10%</option>
+        <option>Acima de 10%</option>
+        <option>Não sabe</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Existe política de cobrança formalizada?</label>
+      <div class="options">
+        <label><input type="radio" name="politica_cobranca" value="sim"> <span>Sim</span></label>
+        <label><input type="radio" name="politica_cobranca" value="informal"> <span>Informal/verbal</span></label>
+        <label><input type="radio" name="politica_cobranca" value="nao"> <span>Não</span></label>
+      </div>
+    </div>
+
+    <h3>3.2 Fluxo de Caixa</h3>
+    <div class="field">
+      <label>Há fluxo de caixa atualizado? Com que frequência?</label>
+      <div class="options">
+        <label><input type="radio" name="fluxo_freq" value="diario"> <span>Diário</span></label>
+        <label><input type="radio" name="fluxo_freq" value="semanal"> <span>Semanal</span></label>
+        <label><input type="radio" name="fluxo_freq" value="mensal"> <span>Mensal</span></label>
+        <label><input type="radio" name="fluxo_freq" value="nao"> <span>Não possui</span></label>
+      </div>
+    </div>
+    <div class="field">
+      <label>É possível projetar o caixa para 30, 60 e 90 dias?</label>
+      <div class="options">
+        <label><input type="radio" name="projecao_caixa" value="sim"> <span>Sim</span></label>
+        <label><input type="radio" name="projecao_caixa" value="parcial"> <span>Parcialmente</span></label>
+        <label><input type="radio" name="projecao_caixa" value="nao"> <span>Não</span></label>
+      </div>
+    </div>
+    <div class="field">
+      <label>Houve necessidade de crédito emergencial nos últimos 12 meses?</label>
+      <div class="options">
+        <label><input type="radio" name="credito_emergencial" value="nao"> <span>Não</span></label>
+        <label><input type="radio" name="credito_emergencial" value="1x"> <span>1 vez</span></label>
+        <label><input type="radio" name="credito_emergencial" value="2x"> <span>2 vezes</span></label>
+        <label><input type="radio" name="credito_emergencial" value="mais"> <span>Mais de 2 vezes</span></label>
+      </div>
+    </div>
+
+    <h3>3.3 Conciliação Bancária</h3>
+    <div class="field">
+      <label>Quantas contas bancárias a empresa opera?</label>
+      <input type="number" id="e3_contas_bancarias" min="0" placeholder="Número de contas" style="max-width:180px">
+    </div>
+    <div class="field">
+      <label>A conciliação é feita com que frequência?</label>
+      <div class="options">
+        <label><input type="radio" name="conciliacao_freq" value="diario"> <span>Diária</span></label>
+        <label><input type="radio" name="conciliacao_freq" value="semanal"> <span>Semanal</span></label>
+        <label><input type="radio" name="conciliacao_freq" value="mensal"> <span>Mensal</span></label>
+        <label><input type="radio" name="conciliacao_freq" value="nao"> <span>Não faz</span></label>
+      </div>
+    </div>
+    <div class="field">
+      <label>Há divergências recorrentes entre extrato e sistema?</label>
+      <div class="options">
+        <label><input type="radio" name="divergencias" value="nao"> <span>Não</span></label>
+        <label><input type="radio" name="divergencias" value="raramente"> <span>Raramente</span></label>
+        <label><input type="radio" name="divergencias" value="frequente"> <span>Com frequência</span></label>
+      </div>
+    </div>
+
+    <h3>3.4 Separação PJ x PF</h3>
+    <div class="field">
+      <label>As finanças da empresa e dos sócios estão separadas?</label>
+      <div class="options">
+        <label><input type="radio" name="separacao_pjpf" value="sim"> <span>Sim, totalmente</span></label>
+        <label><input type="radio" name="separacao_pjpf" value="parcial"> <span>Parcialmente</span></label>
+        <label><input type="radio" name="separacao_pjpf" value="nao"> <span>Não estão separadas</span></label>
+      </div>
+    </div>
+    <div class="field">
+      <label>Há retiradas extras não planejadas pelos sócios?</label>
+      <div class="options">
+        <label><input type="radio" name="retiradas_extras" value="nao"> <span>Não</span></label>
+        <label><input type="radio" name="retiradas_extras" value="raramente"> <span>Raramente</span></label>
+        <label><input type="radio" name="retiradas_extras" value="frequente"> <span>Com frequência</span></label>
+      </div>
+    </div>
+
+    <h3>3.5 Estoque e Custos (se aplicável)</h3>
+    <div class="field">
+      <label>Há controle de estoque integrado ao financeiro?</label>
+      <div class="options">
+        <label><input type="radio" name="estoque" value="sim"> <span>Sim</span></label>
+        <label><input type="radio" name="estoque" value="parcial"> <span>Parcial</span></label>
+        <label><input type="radio" name="estoque" value="nao"> <span>Não</span></label>
+        <label><input type="radio" name="estoque" value="na"> <span>Não se aplica</span></label>
+      </div>
+    </div>
+    <div class="field">
+      <label>A empresa conhece custo unitário e margem por produto/serviço?</label>
+      <div class="options">
+        <label><input type="radio" name="margem" value="sim"> <span>Sim</span></label>
+        <label><input type="radio" name="margem" value="parcial"> <span>Estimativa</span></label>
+        <label><input type="radio" name="margem" value="nao"> <span>Não sabe</span></label>
+      </div>
+    </div>
+
+    <h3>3.6 Tecnologia e Ferramentas do Dia a Dia</h3>
+    <div class="field">
+      <label>A empresa utiliza algum sistema de informações / ERP?</label>
+      <div class="options">
+        <label><input type="radio" name="e3_possui_erp" value="sim" onclick="toggleErpFields()"> <span>Sim</span></label>
+        <label><input type="radio" name="e3_possui_erp" value="nao" onclick="toggleErpFields()"> <span>Não</span></label>
+      </div>
+    </div>
+
+    <div id="e3_erp_sim_wrap" style="display:none">
+      <div class="grid-2">
+        <div class="field">
+          <label>Qual sistema / ERP utiliza?</label>
+          <input type="text" id="e3_erp_nome" placeholder="Ex: Omie, Conta Azul, Totvs, SAP, Netsuite...">
+        </div>
+        <div class="field">
+          <label>Quais módulos são utilizados?</label>
+          <input type="text" id="e3_erp_modulos" placeholder="Ex: Financeiro, Estoque, Faturamento...">
+        </div>
+      </div>
+      <div class="field">
+        <label>Avaliação do uso atual do sistema</label>
+        <div class="options">
+          <label><input type="radio" name="e3_erp_uso" value="completo"> <span>Uso completo</span></label>
+          <label><input type="radio" name="e3_erp_uso" value="parcial"> <span>Uso parcial</span></label>
+          <label><input type="radio" name="e3_erp_uso" value="basico"> <span>Uso muito básico</span></label>
+        </div>
+      </div>
+    </div>
+
+    <div id="e3_erp_nao_wrap" style="display:none">
+      <div class="field">
+        <label>Quais ferramentas utiliza no dia a dia para gestão financeira?</label>
+        <div class="options">
+          <label><input type="checkbox" id="e3_ferr_excel"> <span>Excel / Google Sheets</span></label>
+          <label><input type="checkbox" id="e3_ferr_whatsapp"> <span>WhatsApp / anotações</span></label>
+          <label><input type="checkbox" id="e3_ferr_papel"> <span>Caderno / papel</span></label>
+          <label><input type="checkbox" id="e3_ferr_banco"> <span>Só extrato bancário</span></label>
+          <label><input type="checkbox" id="e3_ferr_outro"> <span>Outro</span></label>
+        </div>
+      </div>
+      <div class="field" id="e3_ferr_outro_wrap" style="display:none">
+        <label>Qual outra ferramenta?</label>
+        <input type="text" id="e3_ferr_outro_nome" placeholder="Descreva...">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>A empresa ou o gestor já utiliza Inteligência Artificial (IA) em algum processo?</label>
+      <div class="options">
+        <label><input type="radio" name="e3_usa_ia" value="sim_financeiro"> <span>Sim, na área financeira</span></label>
+        <label><input type="radio" name="e3_usa_ia" value="sim_outros"> <span>Sim, em outras áreas</span></label>
+        <label><input type="radio" name="e3_usa_ia" value="experimentando"> <span>Está experimentando</span></label>
+        <label><input type="radio" name="e3_usa_ia" value="nao"> <span>Não utiliza</span></label>
+      </div>
+    </div>
+    <div class="field">
+      <label>Quais ferramentas de IA já usa ou testou? <small style="font-weight:400;color:var(--muted)">(selecione todos que se aplicam)</small></label>
+      <div class="options">
+        <label><input type="checkbox" id="e3_ia_chatgpt"> <span>ChatGPT</span></label>
+        <label><input type="checkbox" id="e3_ia_copilot"> <span>Microsoft Copilot</span></label>
+        <label><input type="checkbox" id="e3_ia_gemini"> <span>Google Gemini</span></label>
+        <label><input type="checkbox" id="e3_ia_claude"> <span>Claude (Anthropic)</span></label>
+        <label><input type="checkbox" id="e3_ia_outros" onchange="toggleOutrosCB('e3_ia_outros_wrap',this)"> <span>Outros</span></label>
+      </div>
+      <div id="e3_ia_outros_wrap" class="outros-field" style="display:none">
+        <input type="text" id="e3_ia_outros_text" placeholder="Outras ferramentas de IA utilizadas...">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Observações Operacionais</label>
+      <div class="options">
+        <label><input type="checkbox" id="e3_obs_sazonalidade"> <span>Negócio com forte sazonalidade</span></label>
+        <label><input type="checkbox" id="e3_obs_credito"> <span>Operações recorrentes com crédito/financiamento</span></label>
+        <label><input type="checkbox" id="e3_obs_internacional"> <span>Operações internacionais ou em moeda estrangeira</span></label>
+        <label><input type="checkbox" id="e3_obs_outros" onchange="toggleOutrosCB('e3_obs_outros_wrap',this)"> <span>Outros</span></label>
+      </div>
+      <div id="e3_obs_outros_wrap" class="outros-field" style="display:none">
+        <input type="text" id="e3_obs_outros_text" placeholder="Descreva pontos relevantes...">
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-outline" onclick="showTab('etapa2', document.querySelectorAll('nav.tabs button')[1])">← Voltar</button>
+      <button class="btn btn-primary" onclick="showTab('etapa4', document.querySelectorAll('nav.tabs button')[3])">Próxima etapa →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     ETAPA 4 — DIAGNÓSTICO ESTRATÉGICO
+════════════════════════════════════════════════ -->
+<div id="etapa4" class="tab-panel">
+  <div class="info-box">💡 Responda sobre o planejamento e os controles estratégicos da sua empresa.</div>
+
+  <div class="card">
+    <h2>📈 Etapa 4 — Diagnóstico Estratégico e Gerencial</h2>
+
+    <h3>4.1 Indicadores e Relatórios</h3>
+    <div class="field">
+      <label>Quais relatórios financeiros são gerados hoje?</label>
+      <div class="options">
+        <label><input type="checkbox" id="rel_dre"> <span>DRE Gerencial</span></label>
+        <label><input type="checkbox" id="rel_balanco"> <span>Balanço Patrimonial</span></label>
+        <label><input type="checkbox" id="rel_fluxo"> <span>Fluxo de Caixa</span></label>
+        <label><input type="checkbox" id="rel_contas"> <span>Contas a P/R</span></label>
+        <label><input type="checkbox" id="rel_nenhum"> <span>Nenhum</span></label>
+      </div>
+    </div>
+    <div class="field">
+      <label>Há DRE gerencial mensal atualizado?</label>
+      <div class="options">
+        <label><input type="radio" name="dre" value="sim"> <span>Sim</span></label>
+        <label><input type="radio" name="dre" value="trimestral"> <span>Trimestral</span></label>
+        <label><input type="radio" name="dre" value="somente_fiscal"> <span>Só fiscal (contador)</span></label>
+        <label><input type="radio" name="dre" value="nao"> <span>Não</span></label>
+      </div>
+    </div>
+    <div class="field">
+      <label>Quais KPIs a empresa acompanha?</label>
+      <div class="options">
+        <label><input type="checkbox" id="kpi_margem"> <span>Margem</span></label>
+        <label><input type="checkbox" id="kpi_pe"> <span>Ponto de Equilíbrio</span></label>
+        <label><input type="checkbox" id="kpi_cg"> <span>Capital de Giro</span></label>
+        <label><input type="checkbox" id="kpi_ticket"> <span>Ticket Médio</span></label>
+        <label><input type="checkbox" id="kpi_nenhum"> <span>Nenhum</span></label>
+      </div>
+    </div>
+
+    <h3>4.2 Planejamento</h3>
+    <div class="field">
+      <label>Existe orçamento anual? Ele é acompanhado?</label>
+      <div class="options">
+        <label><input type="radio" name="orcamento" value="sim_acompanha"> <span>Sim, acompanha</span></label>
+        <label><input type="radio" name="orcamento" value="sim_nao_acompanha"> <span>Sim, mas não acompanha</span></label>
+        <label><input type="radio" name="orcamento" value="nao"> <span>Não possui</span></label>
+      </div>
+    </div>
+    <div class="field">
+      <label>Há metas financeiras claras e documentadas?</label>
+      <div class="options">
+        <label><input type="radio" name="metas" value="sim"> <span>Sim</span></label>
+        <label><input type="radio" name="metas" value="informais"> <span>Informais</span></label>
+        <label><input type="radio" name="metas" value="nao"> <span>Não</span></label>
+      </div>
+    </div>
+    <div class="field">
+      <label>Como são tomadas as decisões de investimento na empresa?</label>
+      <div class="options">
+        <label><input type="radio" name="e4_decisao_inv" value="dados" onchange="toggleOutros('e4_decisao_inv_outros',this,'outros')"> <span>Com base em dados e relatórios financeiros</span></label>
+        <label><input type="radio" name="e4_decisao_inv" value="contador" onchange="toggleOutros('e4_decisao_inv_outros',this,'outros')"> <span>Com orientação do contador</span></label>
+        <label><input type="radio" name="e4_decisao_inv" value="intuicao" onchange="toggleOutros('e4_decisao_inv_outros',this,'outros')"> <span>Por intuição e experiência do gestor</span></label>
+        <label><input type="radio" name="e4_decisao_inv" value="socios" onchange="toggleOutros('e4_decisao_inv_outros',this,'outros')"> <span>Em conjunto com sócios, sem dados formais</span></label>
+        <label><input type="radio" name="e4_decisao_inv" value="outros" onchange="toggleOutros('e4_decisao_inv_outros',this,'outros')"> <span>Outros</span></label>
+      </div>
+      <div id="e4_decisao_inv_outros" class="outros-field" style="display:none">
+        <input type="text" id="e4_decisao_inv_outros_text" placeholder="Descreva como são tomadas as decisões...">
+      </div>
+    </div>
+
+    <h3>4.3 Tributos e Compliance</h3>
+    <div class="field">
+      <label>Os impostos são pagos em dia?</label>
+      <div class="options">
+        <label><input type="radio" name="impostos" value="sempre"> <span>Sempre</span></label>
+        <label><input type="radio" name="impostos" value="maioria"> <span>Na maioria</span></label>
+        <label><input type="radio" name="impostos" value="atrasos"> <span>Há atrasos frequentes</span></label>
+      </div>
+    </div>
+    <div class="field">
+      <label>Há revisão tributária periódica?</label>
+      <div class="options">
+        <label><input type="radio" name="revisao_tributaria" value="sim"> <span>Sim</span></label>
+        <label><input type="radio" name="revisao_tributaria" value="nao"> <span>Não</span></label>
+      </div>
+    </div>
+    <div class="field">
+      <label>A empresa tem certidões negativas em dia?</label>
+      <div class="options">
+        <label><input type="radio" name="certidoes" value="sim"> <span>Sim</span></label>
+        <label><input type="radio" name="certidoes" value="nao_sabe"> <span>Não sabe</span></label>
+        <label><input type="radio" name="certidoes" value="nao"> <span>Não</span></label>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Observações Estratégicas</label>
+      <div class="options">
+        <label><input type="checkbox" id="e4_obs_crescimento"> <span>Empresa planeja expansão ou nova linha de negócio</span></label>
+        <label><input type="checkbox" id="e4_obs_fusao"> <span>Está avaliando fusão, aquisição ou sociedade</span></label>
+        <label><input type="checkbox" id="e4_obs_credito"> <span>Pretende buscar crédito ou investimento externo</span></label>
+        <label><input type="checkbox" id="e4_obs_outros" onchange="toggleOutrosCB('e4_obs_outros_wrap',this)"> <span>Outros</span></label>
+      </div>
+      <div id="e4_obs_outros_wrap" class="outros-field" style="display:none">
+        <input type="text" id="e4_obs_outros_text" placeholder="Descreva percepções adicionais...">
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-outline" onclick="showTab('etapa3', document.querySelectorAll('nav.tabs button')[2])">← Voltar</button>
+      <button class="btn btn-primary" onclick="showTab('etapa5', document.querySelectorAll('nav.tabs button')[4])">Próxima etapa →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     ETAPA 5 — DOR E IMPACTO
+════════════════════════════════════════════════ -->
+<div id="etapa5" class="tab-panel">
+  <div class="info-box">💡 Essas informações nos ajudam a entender o impacto do tempo e das perdas financeiras na sua empresa.</div>
+
+  <div class="card">
+    <h2>🎯 Etapa 5 — Análise de Dor e Impacto</h2>
+
+    <div class="field">
+      <label>1. Quanto tempo por semana o sócio dedica à parte financeira?</label>
+      <select id="e5_tempo_semana">
+        <option value="">Selecione...</option>
+        <option>Menos de 2 horas</option>
+        <option>2 a 5 horas</option>
+        <option>5 a 10 horas</option>
+        <option>Mais de 10 horas</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>2. Se não precisasse cuidar das finanças, esse tempo seria dedicado a quê? <small style="font-weight:400;color:var(--muted)">(selecione todos que se aplicam)</small></label>
+      <div class="options">
+        <label><input type="checkbox" id="e5_tempo_vendas"> <span>Vendas e prospecção de clientes</span></label>
+        <label><input type="checkbox" id="e5_tempo_estrategia"> <span>Estratégia e planejamento do negócio</span></label>
+        <label><input type="checkbox" id="e5_tempo_atendimento"> <span>Atendimento e relacionamento com clientes</span></label>
+        <label><input type="checkbox" id="e5_tempo_operacao"> <span>Operação e produção</span></label>
+        <label><input type="checkbox" id="e5_tempo_outros" onchange="toggleOutrosCB('e5_tempo_outros_wrap',this)"> <span>Outros</span></label>
+      </div>
+      <div id="e5_tempo_outros_wrap" class="outros-field" style="display:none">
+        <input type="text" id="e5_tempo_outros_text" placeholder="Descreva como usaria o tempo...">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>3. As decisões são tomadas com base em dados ou em "sensação"?</label>
+      <div class="options">
+        <label><input type="radio" name="decisao_base" value="dados"> <span>Principalmente dados</span></label>
+        <label><input type="radio" name="decisao_base" value="misto"> <span>Misto</span></label>
+        <label><input type="radio" name="decisao_base" value="sensacao"> <span>Principalmente sensação</span></label>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>4. Se o sócio ficasse afastado por 30 dias, a operação financeira continuaria?</label>
+      <div class="options">
+        <label><input type="radio" name="dependencia_socio" value="sim"> <span>Sim, funciona sem mim</span></label>
+        <label><input type="radio" name="dependencia_socio" value="parcial"> <span>Com dificuldade</span></label>
+        <label><input type="radio" name="dependencia_socio" value="nao"> <span>Não, pararia tudo</span></label>
+      </div>
+    </div>
+
+    <div class="field">
+      <label>5. Estimativa de perdas por falhas ou falta de controle financeiro (últimos 12 meses)</label>
+      <select id="e5_perdas">
+        <option value="">Selecione...</option>
+        <option>Não sabe estimar</option>
+        <option>Menos de R$ 5.000</option>
+        <option>R$ 5.000 a R$ 20.000</option>
+        <option>R$ 20.000 a R$ 50.000</option>
+        <option>Mais de R$ 50.000</option>
+      </select>
+    </div>
+
+    <div class="field">
+      <label>Custo atual com área financeira (estimativa mensal em R$)</label>
+      <input type="text" id="e5_custo_atual" placeholder="Ex: salário financeiro + contador + ferramentas...">
+    </div>
+
+    <div class="field">
+      <label>Comentários adicionais</label>
+      <div class="options">
+        <label><input type="checkbox" id="e5_com_urgencia"> <span>Tenho urgência em resolver problemas financeiros</span></label>
+        <label><input type="checkbox" id="e5_com_terceirizar"> <span>Quero terceirizar completamente a área financeira</span></label>
+        <label><input type="checkbox" id="e5_com_apoio"> <span>Busco apoio pontual e consultoria especializada</span></label>
+        <label><input type="checkbox" id="e5_com_outros" onchange="toggleOutrosCB('e5_com_outros_wrap',this)"> <span>Outros</span></label>
+      </div>
+      <div id="e5_com_outros_wrap" class="outros-field" style="display:none">
+        <input type="text" id="e5_com_outros_text" placeholder="Compartilhe informações adicionais...">
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-outline" onclick="showTab('etapa4', document.querySelectorAll('nav.tabs button')[3])">← Voltar</button>
+      <button class="btn btn-primary" onclick="showTab('radar', document.querySelectorAll('nav.tabs button')[5])">Avançar para o Radar →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     RADAR DE MATURIDADE
+════════════════════════════════════════════════ -->
+<div id="radar" class="tab-panel">
+  <div class="info-box">💡 Avalie de 0 a 10 cada área da gestão financeira da sua empresa. Os valores são preenchidos automaticamente com base nas suas respostas — ajuste conforme necessário.</div>
+
+  <div class="card">
+    <h2>🎯 Radar de Maturidade Financeira</h2>
+    <p style="font-size:.85rem;color:var(--muted);margin-bottom:20px;">0 = área inexistente · 10 = funcionamento excelente. Ajuste conforme sua percepção.</p>
+
+    <div id="radar-scores">
+      <!-- JS vai renderizar aqui -->
+    </div>
+
+    <div class="field" style="margin-top:20px">
+      <label>Pontos Fortes da sua empresa <small style="font-weight:400;color:var(--muted)">(selecione todos que se aplicam)</small></label>
+      <div class="options">
+        <label><input type="checkbox" data-grupo="r_fortes" data-label="Controle de pagamentos e recebimentos em dia"> <span>Controle de pagamentos e recebimentos em dia</span></label>
+        <label><input type="checkbox" data-grupo="r_fortes" data-label="Fluxo de caixa atualizado regularmente"> <span>Fluxo de caixa atualizado regularmente</span></label>
+        <label><input type="checkbox" data-grupo="r_fortes" data-label="Finanças pessoais e empresariais separadas"> <span>Finanças pessoais e empresariais separadas</span></label>
+        <label><input type="checkbox" data-grupo="r_fortes" data-label="Empresa com regularidade fiscal e tributária"> <span>Empresa com regularidade fiscal e tributária</span></label>
+        <label><input type="checkbox" data-grupo="r_fortes" data-label="Sistema de gestão (ERP) implantado e utilizado"> <span>Sistema de gestão (ERP) implantado e utilizado</span></label>
+        <label><input type="checkbox" data-grupo="r_fortes" data-label="Relatórios financeiros disponíveis mensalmente"> <span>Relatórios financeiros disponíveis mensalmente</span></label>
+        <label><input type="checkbox" id="r_fortes_outros_cb" data-grupo="r_fortes" onchange="toggleOutrosCB('r_fortes_outros_wrap',this)"> <span>Outros</span></label>
+      </div>
+      <div id="r_fortes_outros_wrap" class="outros-field" style="display:none">
+        <input type="text" id="r_fortes_outros_text" placeholder="Descreva outros pontos fortes...">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Riscos que mais preocupam sua empresa <small style="font-weight:400;color:var(--muted)">(selecione todos que se aplicam)</small></label>
+      <div class="options">
+        <label><input type="checkbox" data-grupo="r_riscos_cb" data-label="Ausência ou fragilidade no fluxo de caixa"> <span>Ausência ou fragilidade no fluxo de caixa</span></label>
+        <label><input type="checkbox" data-grupo="r_riscos_cb" data-label="Finanças pessoais e da empresa misturadas"> <span>Finanças pessoais e da empresa misturadas</span></label>
+        <label><input type="checkbox" data-grupo="r_riscos_cb" data-label="Falta de relatórios gerenciais"> <span>Falta de relatórios gerenciais</span></label>
+        <label><input type="checkbox" data-grupo="r_riscos_cb" data-label="Inadimplência elevada de clientes"> <span>Inadimplência elevada de clientes</span></label>
+        <label><input type="checkbox" data-grupo="r_riscos_cb" data-label="Atrasos no pagamento de impostos"> <span>Atrasos no pagamento de impostos</span></label>
+        <label><input type="checkbox" data-grupo="r_riscos_cb" data-label="Dependência total do sócio na área financeira"> <span>Dependência total do sócio na área financeira</span></label>
+        <label><input type="checkbox" id="r_riscos_outros_cb" data-grupo="r_riscos_cb" onchange="toggleOutrosCB('r_riscos_outros_wrap',this)"> <span>Outros</span></label>
+      </div>
+      <div id="r_riscos_outros_wrap" class="outros-field" style="display:none">
+        <input type="text" id="r_riscos_outros_text" placeholder="Descreva outros riscos...">
+      </div>
+    </div>
+
+    <div class="field">
+      <label>Observações finais do consultor</label>
+      <textarea id="r_obs_consultor" rows="3" placeholder="Percepções, oportunidades, próximos passos..."></textarea>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-outline" onclick="showTab('etapa5', document.querySelectorAll('nav.tabs button')[4])">← Voltar</button>
+      <button class="btn btn-primary" onclick="showTab('relatorio', document.querySelectorAll('nav.tabs button')[6])">Gerar Relatório →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════
+     RELATÓRIO
+════════════════════════════════════════════════ -->
+<div id="relatorio" class="tab-panel">
+  <div class="card">
+    <h2>↗ Gerador de Relatório — Devolutiva</h2>
+    <p style="font-size:.85rem;color:var(--muted);margin-bottom:22px;">
+      Preencha todas as etapas anteriores antes de gerar. O relatório é produzido automaticamente com base nas respostas coletadas.
+    </p>
+
+    <!-- Gate de contato -->
+    <div id="contact-gate">
+      <div style="background:var(--green-soft);border:1px solid var(--border);border-radius:var(--radius);padding:22px 26px;margin-bottom:20px;">
+        <p style="font-size:.88rem;font-weight:700;color:var(--green-deep);margin-bottom:4px;">
+          Para liberar o relatório, informe os dados de contato do cliente
+        </p>
+        <p style="font-size:.8rem;color:var(--muted);margin-bottom:18px;">
+          Esses dados são usados exclusivamente para acompanhamento comercial.
+        </p>
+        <div class="grid-2">
+          <div class="field">
+            <label>E-mail do cliente <span style="color:var(--warn)">*</span></label>
+            <input type="text" id="gate_email" placeholder="exemplo@empresa.com.br"
+              oninput="clearGateError()">
+          </div>
+          <div class="field">
+            <label>Telefone com DDD <span style="color:var(--warn)">*</span></label>
+            <input type="text" id="gate_telefone" placeholder="(00) 00000-0000"
+              oninput="maskPhone(this); clearGateError()">
+          </div>
+        </div>
+        <div id="gate-error" style="display:none;font-size:.82rem;color:var(--warn);font-weight:600;margin-top:6px;"></div>
+      </div>
+
+      <div id="generate-btn-wrap" class="actions">
+        <button class="btn btn-accent" onclick="validateAndGenerate()" style="font-size:1rem;padding:12px 32px;letter-spacing:.2px;">
+          ▶ Gerar Relatório Completo
+        </button>
+        <button class="btn btn-outline" onclick="window.print()">Imprimir / PDF</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="report-output">
+    <!-- Relatório gerado via JS -->
+  </div>
+</div>
+
+</main>
+
+<script>
+// ── Toggle Outros fields ─────────────────────────────────────────
+function toggleOutros(fieldId, input, outrosValue) {
+  const wrap = document.getElementById(fieldId);
+  if (wrap) wrap.style.display = input.value === outrosValue ? 'block' : 'none';
+}
+function toggleOutrosCB(fieldId, checkbox) {
+  const wrap = document.getElementById(fieldId);
+  if (wrap) wrap.style.display = checkbox.checked ? 'block' : 'none';
+}
+
+// ── Collect checkbox group labels ───────────────────────────────
+function collectCheckedLabels(grupo) {
+  return Array.from(document.querySelectorAll(`[data-grupo="${grupo}"]:checked`))
+    .map(cb => cb.dataset.label || cb.closest('label')?.querySelector('span')?.textContent || '')
+    .filter(t => t && t !== 'Outros').join('\n');
+}
+
+// ── Build Pontos Fortes / Riscos from checkboxes ─────────────────
+function buildPontosFortes() {
+  const base = collectCheckedLabels('r_fortes');
+  const outros = val('r_fortes_outros_text');
+  return [base, outros].filter(Boolean).join('\n') || 'A identificar após análise do diagnóstico.';
+}
+function buildRiscos() {
+  const base = collectCheckedLabels('r_riscos_cb');
+  const outros = val('r_riscos_outros_text');
+  return [base, outros].filter(Boolean).join('\n') || 'A identificar após análise do diagnóstico.';
+}
+
+// ── EmailJS — envio dos dados de contato ────────────────────────
+(function(){
+  emailjs.init({ publicKey: 'Dcu10fXkrsrU-A9jf' });
+})();
+
+function sendContactData(empresa, segmento, faturamento, emailCliente, telCliente) {
+  const params = {
+    empresa:       empresa,
+    segmento:      segmento,
+    faturamento:   faturamento,
+    email_cliente: emailCliente,
+    telefone:      telCliente,
+    data:          new Date().toLocaleDateString('pt-BR'),
+  };
+  emailjs.send('service_806qqln', 'template_5dxag7g', params)
+    .then(function() {
+      console.info('EmailJS: lead enviado com sucesso.');
+    })
+    .catch(function(err) {
+      console.error('EmailJS erro:', JSON.stringify(err));
+      // Exibe aviso visível para facilitar diagnóstico
+      const errMsg = (err && err.text) ? err.text : JSON.stringify(err);
+      const el = document.createElement('p');
+      el.style.cssText = 'font-size:.78rem;color:#b83232;margin-top:8px;font-weight:600;';
+      el.textContent = 'Aviso interno: falha ao registrar lead (' + errMsg + ')';
+      const wrap = document.getElementById('generate-btn-wrap');
+      if(wrap && !document.getElementById('emailjs-err')) {
+        el.id = 'emailjs-err';
+        wrap.appendChild(el);
+      }
+    });
+}
+
+// ── Toggle ERP / Ferramentas ─────────────────────────────────────────────
+function toggleErpFields() {
+  const v = document.querySelector('input[name="e3_possui_erp"]:checked')?.value;
+  document.getElementById('e3_erp_sim_wrap').style.display = v === 'sim' ? 'block' : 'none';
+  document.getElementById('e3_erp_nao_wrap').style.display = v === 'nao' ? 'block' : 'none';
+}
+document.getElementById('e2_erp').addEventListener('change', function() {
+  document.getElementById('e2_erp_outros_wrap').style.display = this.value === 'outros_erp' ? 'block' : 'none';
+});
+document.getElementById('e3_ferr_outro').addEventListener('change', function() {
+  document.getElementById('e3_ferr_outro_wrap').style.display = this.checked ? 'block' : 'none';
+});
+
+// ── Tab navigation ──────────────────────────────────────────────
+function showTab(id, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('nav.tabs button').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  if(btn) btn.classList.add('active');
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+// ── Radar sliders ───────────────────────────────────────────────
+const DIMENSIONS = [
+  {key:'contas',   label:'Contas a Pagar/Receber'},
+  {key:'fluxo',    label:'Fluxo de Caixa'},
+  {key:'concil',   label:'Conciliação Bancária'},
+  {key:'relat',    label:'Relatórios Gerenciais'},
+  {key:'planej',   label:'Planejamento e Orçamento'},
+  {key:'pjpf',     label:'Separação PJ/PF'},
+  {key:'tributos', label:'Compliance Tributário'},
+  {key:'tecnol',   label:'Tecnologia e Processos'},
+];
+
+function buildRadar() {
+  const wrap = document.getElementById('radar-scores');
+  wrap.innerHTML = DIMENSIONS.map(d => `
+    <div class="score-row">
+      <span>${d.label}</span>
+      <input type="range" min="0" max="10" step="0.5" value="5"
+        id="score_${d.key}" oninput="document.getElementById('val_${d.key}').textContent=this.value">
+      <div class="score-val" id="val_${d.key}">5</div>
+    </div>
+  `).join('');
+}
+buildRadar();
+
+// ── Helpers ─────────────────────────────────────────────────────
+function val(id) {
+  const el = document.getElementById(id);
+  return el ? el.value.trim() : '';
+}
+function radio(name) {
+  const el = document.querySelector(`input[name="${name}"]:checked`);
+  return el ? el.value : '';
+}
+function scoreColor(n) {
+  if(n <= 4) return 'danger';
+  if(n <= 6) return 'warn';
+  return '';
+}
+function badgeFromScore(n) {
+  if(n <= 4) return '<span class="badge badge-red">Crítico</span>';
+  if(n <= 6) return '<span class="badge badge-yellow">Em Desenvolvimento</span>';
+  return '<span class="badge badge-green">Adequado</span>';
+}
+function getDiagLabel(n) {
+  if(n <= 3) return 'Crítico';
+  if(n <= 5) return 'Deficiente';
+  if(n <= 7) return 'Em Desenvolvimento';
+  return 'Adequado';
+}
+
+// ── Auto-score suggestion from form answers ──────────────────────
+function suggestScores() {
+  const scores = {};
+
+  // Contas a pagar
+  let cs = 5;
+  if(radio('ctrl_venc')==='sim_sem_problemas') cs=8;
+  if(radio('ctrl_venc')==='sim_com_problemas') cs=4;
+  if(radio('ctrl_venc')==='nao') cs=2;
+  if(radio('politica_cobranca')==='sim') cs=Math.min(10,cs+1);
+  if(radio('politica_cobranca')==='nao') cs=Math.max(0,cs-1);
+  scores.contas = cs;
+
+  // Fluxo de caixa
+  let fs=5;
+  const ff=radio('fluxo_freq');
+  if(ff==='diario') fs=9; else if(ff==='semanal') fs=7; else if(ff==='mensal') fs=5; else if(ff==='nao') fs=2;
+  if(radio('projecao_caixa')==='sim') fs=Math.min(10,fs+1);
+  if(radio('credito_emergencial')==='mais') fs=Math.max(0,fs-2);
+  scores.fluxo = fs;
+
+  // Conciliação
+  let cc=5;
+  const cf=radio('conciliacao_freq');
+  if(cf==='diario') cc=9; else if(cf==='semanal') cc=7; else if(cf==='mensal') cc=5; else if(cf==='nao') cc=1;
+  if(radio('divergencias')==='frequente') cc=Math.max(0,cc-2);
+  scores.concil = cc;
+
+  // Relatórios
+  let rs=3;
+  if(document.getElementById('rel_dre')?.checked) rs+=2;
+  if(document.getElementById('rel_fluxo')?.checked) rs+=1;
+  if(document.getElementById('rel_balanco')?.checked) rs+=1;
+  if(document.getElementById('rel_contas')?.checked) rs+=1;
+  if(radio('dre')==='sim') rs=Math.min(10,rs+2);
+  scores.relat = Math.min(10, rs);
+
+  // Planejamento
+  let ps=4;
+  const oc=radio('orcamento');
+  if(oc==='sim_acompanha') ps=8; else if(oc==='sim_nao_acompanha') ps=5; else if(oc==='nao') ps=2;
+  if(radio('metas')==='sim') ps=Math.min(10,ps+1);
+  scores.planej = ps;
+
+  // PJ x PF
+  let pj=5;
+  if(radio('separacao_pjpf')==='sim') pj=8;
+  if(radio('separacao_pjpf')==='nao') pj=2;
+  if(radio('retiradas_extras')==='frequente') pj=Math.max(0,pj-2);
+  scores.pjpf = pj;
+
+  // Tributos
+  let ts=5;
+  if(radio('impostos')==='sempre') ts=8;
+  if(radio('impostos')==='atrasos') ts=3;
+  if(radio('certidoes')==='sim') ts=Math.min(10,ts+1);
+  if(radio('certidoes')==='nao') ts=Math.max(0,ts-2);
+  scores.tributos = ts;
+
+  // Tecnologia
+  let te=4;
+  const erp=val('e2_erp_uso');
+  if(erp==='Uso completo') te=8;
+  else if(erp==='Uso parcial') te=5;
+  else if(erp==='Não possui sistema') te=2;
+  scores.tecnol = te;
+
+  DIMENSIONS.forEach(d=>{
+    const slider=document.getElementById(`score_${d.key}`);
+    const vspan=document.getElementById(`val_${d.key}`);
+    if(slider && scores[d.key]!==undefined){
+      slider.value=scores[d.key];
+      vspan.textContent=scores[d.key];
+    }
+  });
+}
+
+// ── Diagnóstico detalhado por área ───────────────────────────────
+function buildAreaDiag(scores) {
+  const areas = [
+    {
+      key:'contas', label:'Contas a Pagar e Receber',
+      getTexts() {
+        const ctrl = radio('ctrl_venc');
+        const inadi = val('e3_inadimplencia');
+        let situacao='', risco='', impacto='';
+        if(ctrl==='nao'){
+          situacao='Sem controle formal de vencimentos. Pagamentos realizados de forma reativa.';
+          risco='Alto risco de duplicidade, perda de prazos e juros moratórios.';
+          impacto='Custo direto com multas e juros, além de danos ao relacionamento com fornecedores.';
+        } else if(ctrl==='sim_com_problemas'){
+          situacao='Controle existente, porém com histórico de falhas e erros de pagamento.';
+          risco='Processo ainda suscetível a erros que geram custos evitáveis.';
+          impacto='Perda financeira moderada com potencial de crescimento se não corrigida.';
+        } else {
+          situacao='Controle de vencimentos presente e sem ocorrências significativas relatadas.';
+          risco='Baixo, mas pode ser otimizado com automação.';
+          impacto='Mínimo no cenário atual.';
+        }
+        if(inadi && inadi!=='' && inadi!=='Menos de 2%'){
+          risco += ` Inadimplência reportada em nível ${inadi.toLowerCase()}.`;
+        }
+        return {situacao, risco, impacto};
+      }
+    },
+    {
+      key:'fluxo', label:'Fluxo de Caixa',
+      getTexts() {
+        const freq = radio('fluxo_freq');
+        const cred = radio('credito_emergencial');
+        let situacao='', risco='', impacto='';
+        if(freq==='nao'){
+          situacao='Empresa não possui fluxo de caixa estruturado.';
+          risco='Gestão de caixa baseada em percepção, sem visibilidade de curto prazo.';
+          impacto='Alta probabilidade de surpresas negativas, necessidade de crédito caro e perda de oportunidades.';
+        } else if(freq==='mensal'){
+          situacao='Fluxo de caixa atualizado mensalmente. Visibilidade limitada.';
+          risco='Prazo de 30 dias é insuficiente para antecipação de crises de caixa.';
+          impacto='Capacidade de reação reduzida a variações inesperadas.';
+        } else {
+          situacao=`Fluxo de caixa atualizado com frequência ${freq}. Boa visibilidade operacional.`;
+          risco='Baixo risco operacional no curto prazo.';
+          impacto='Positivo — gestão proativa do caixa.';
+        }
+        if(cred==='mais'){
+          risco += ' Histórico de múltiplos créditos emergenciais indica fragilidade estrutural.';
+          impacto += ' Custo financeiro elevado com juros de emergência.';
+        }
+        return {situacao, risco, impacto};
+      }
+    },
+    {
+      key:'concil', label:'Conciliação Bancária',
+      getTexts() {
+        const freq = radio('conciliacao_freq');
+        const div = radio('divergencias');
+        let situacao='Conciliação realizada.', risco='', impacto='';
+        if(freq==='nao'){
+          situacao='Conciliação bancária não realizada regularmente.';
+          risco='Impossibilidade de identificar erros, fraudes ou lançamentos duplicados.';
+          impacto='Risco financeiro e fiscal relevante, com potencial de passivos ocultos.';
+        }
+        if(div==='frequente'){
+          risco += ' Divergências recorrentes indicam falha sistêmica no processo.';
+          impacto += ' Risco de informações gerenciais incorretas orientando decisões.';
+        }
+        if(!risco) { risco='Moderado — processo presente mas pode ser mais rigoroso.'; impacto='Limitado.'; }
+        return {situacao, risco, impacto};
+      }
+    },
+    {
+      key:'relat', label:'Relatórios Gerenciais',
+      getTexts() {
+        const dre = radio('dre');
+        let situacao='', risco='', impacto='';
+        if(dre==='sim'){
+          situacao='DRE gerencial mensal disponível. Base para decisões estratégicas presente.';
+          risco='Baixo risco de decisões por "achismo".';
+          impacto='Positivo — cultura de dados estabelecida.';
+        } else if(dre==='nao' || dre==='somente_fiscal'){
+          situacao='Relatórios gerenciais ausentes ou limitados ao fiscal/contábil.';
+          risco='Decisões estratégicas tomadas sem dados gerenciais confiáveis.';
+          impacto='Risco alto de sub/superdimensionamento de investimentos e despesas.';
+        } else {
+          situacao='DRE com periodicidade superior ao ideal.';
+          risco='Visibilidade defasada do resultado da empresa.';
+          impacto='Reação lenta a mudanças no desempenho operacional.';
+        }
+        return {situacao, risco, impacto};
+      }
+    },
+    {
+      key:'planej', label:'Planejamento e Orçamento',
+      getTexts() {
+        const orc = radio('orcamento');
+        const met = radio('metas');
+        let situacao='', risco='', impacto='';
+        if(orc==='sim_acompanha'){
+          situacao='Orçamento anual presente e acompanhado periodicamente.';
+          risco='Baixo — gestão proativa dos custos.';
+          impacto='Positivo — controle e previsibilidade financeira.';
+        } else if(orc==='sim_nao_acompanha'){
+          situacao='Orçamento existe, mas não é acompanhado com regularidade.';
+          risco='Desvios não identificados a tempo. Orçamento como exercício burocrático.';
+          impacto='Potencial de gastos acima do planejado sem percepção imediata.';
+        } else {
+          situacao='Empresa opera sem orçamento anual estruturado.';
+          risco='Ausência de balizadores financeiros para crescimento e investimento.';
+          impacto='Alto risco de decisões de expansão mal dimensionadas.';
+        }
+        if(met==='nao') risco += ' Ausência de metas financeiras claras agrava a falta de direção.';
+        return {situacao, risco, impacto};
+      }
+    },
+    {
+      key:'pjpf', label:'Separação PJ/PF',
+      getTexts() {
+        const sep = radio('separacao_pjpf');
+        const ret = radio('retiradas_extras');
+        let situacao='', risco='', impacto='';
+        if(sep==='sim'){
+          situacao='Finanças pessoais e empresariais separadas.';
+          risco='Baixo — boa prática estabelecida.';
+          impacto='Visibilidade do resultado real da empresa preservada.';
+        } else if(sep==='parcial'){
+          situacao='Separação parcial. Transações PF ainda transitam pelo caixa da empresa.';
+          risco='Distorção do resultado e custo real da operação.';
+          impacto='Dificuldade em apurar lucro real e exposição fiscal.';
+        } else {
+          situacao='Finanças PJ e PF não separadas. Caixa único para empresa e sócios.';
+          risco='Risco fiscal elevado, impossibilidade de apurar resultado real, vulnerabilidade patrimonial.';
+          impacto='Perda significativa de controle e risco legal/fiscal.';
+        }
+        if(ret==='frequente') {
+          risco += ' Retiradas não planejadas recorrentes comprometem o capital de giro.';
+        }
+        return {situacao, risco, impacto};
+      }
+    },
+    {
+      key:'tributos', label:'Compliance Tributário',
+      getTexts() {
+        const imp = radio('impostos');
+        const cert = radio('certidoes');
+        let situacao='', risco='', impacto='';
+        if(imp==='sempre' && cert==='sim'){
+          situacao='Impostos em dia e certidões negativas atualizadas.';
+          risco='Baixo risco tributário atual.';
+          impacto='Empresa apta a participar de licitações e contratos que exigem regularidade.';
+        } else if(imp==='atrasos'){
+          situacao='Histórico de atrasos no recolhimento de tributos.';
+          risco='Passivos fiscais, multas e juros em crescimento. Risco de autuação.';
+          impacto='Custo tributário acima do necessário + restrições contratuais.';
+        } else {
+          situacao='Situação tributária com pontos de atenção.';
+          risco='Risco moderado de irregularidades não identificadas.';
+          impacto='Potencial passivo tributário contingente.';
+        }
+        if(cert==='nao') {
+          risco += ' Certidões negativas desatualizadas bloqueiam operações comerciais.';
+        }
+        return {situacao, risco, impacto};
+      }
+    },
+    {
+      key:'tecnol', label:'Tecnologia e Processos',
+      getTexts() {
+        const erp = val('e2_erp_uso');
+        const erpSelVal = val('e2_erp');
+        const erpNome = erpSelVal === 'outros_erp' ? (val('e2_erp_outros_text') || 'Outro sistema') : erpSelVal;
+        let situacao='', risco='', impacto='';
+        if(erp==='Uso completo'){
+          situacao=`Sistema ${erpNome||'ERP'} utilizado plenamente. Processos digitalizados.`;
+          risco='Baixo — boa base tecnológica.';
+          impacto='Eficiência operacional e rastreabilidade garantidas.';
+        } else if(erp==='Não possui sistema'){
+          situacao='Gestão financeira sem sistema estruturado (planilhas ou anotações manuais).';
+          risco='Alto risco de erros, perda de dados, ineficiência e impossibilidade de escala.';
+          impacto='Limitação severa ao crescimento e à qualidade das informações gerenciais.';
+        } else {
+          situacao=`Sistema ${erpNome||'ERP'} presente, mas subutilizado.`;
+          risco='Investimento em tecnologia sem retorno pleno. Processos manuais persistentes.';
+          impacto='Oportunidade de ganho imediato com melhor aproveitamento da ferramenta existente.';
+        }
+        return {situacao, risco, impacto};
+      }
+    }
+  ];
+
+  return areas.map(a => {
+    const score = parseFloat(document.getElementById(`score_${a.key}`)?.value || 5);
+    const t = a.getTexts();
+    return `
+      <h3>${a.label} ${badgeFromScore(score)} — Nota: ${score}/10</h3>
+      <p><strong>Situação atual:</strong> ${t.situacao}</p>
+      <p><strong>Riscos identificados:</strong> ${t.risco}</p>
+      <p><strong>Impacto financeiro estimado:</strong> ${t.impacto}</p>
+    `;
+  }).join('');
+}
+
+// ── Plano de ação gerado automaticamente ────────────────────────
+function buildActionPlan(scores) {
+  const actions = {
+    imediato: [],
+    medio: [],
+    estrutural: []
+  };
+
+  const avgScore = scores.reduce((a,b)=>a+b,0)/scores.length;
+
+  if(parseFloat(document.getElementById('score_fluxo')?.value||5)<=5){
+    actions.imediato.push(['Fluxo de Caixa','Implantar planilha de fluxo de caixa diário com projeção de 90 dias']);
+  }
+  if(parseFloat(document.getElementById('score_pjpf')?.value||5)<=5){
+    actions.imediato.push(['Separação PJ/PF','Abrir conta bancária exclusiva PJ e definir pró-labore fixo']);
+  }
+  if(parseFloat(document.getElementById('score_contas')?.value||5)<=5){
+    actions.imediato.push(['Contas a P/R','Centralizar todas as obrigações em agenda única de vencimentos']);
+  }
+  if(radio('impostos')==='atrasos'){
+    actions.imediato.push(['Tributos','Regularizar pendências fiscais e negociar parcelamentos disponíveis']);
+  }
+  if(parseFloat(document.getElementById('score_concil')?.value||5)<=6){
+    actions.medio.push(['Conciliação','Implantar rotina semanal de conciliação bancária com conferência sistêmica']);
+  }
+  if(parseFloat(document.getElementById('score_relat')?.value||5)<=6){
+    actions.medio.push(['Relatórios','Estruturar DRE gerencial mensal com dados de receita, custo e margem']);
+  }
+  if(parseFloat(document.getElementById('score_tecnol')?.value||5)<=5){
+    actions.medio.push(['Tecnologia','Avaliar e implantar sistema ERP adequado ao porte e segmento']);
+  }
+  if(parseFloat(document.getElementById('score_planej')?.value||5)<=5){
+    actions.estrutural.push(['Planejamento','Construir orçamento anual (budget) com revisão trimestral']);
+  }
+  if(parseFloat(document.getElementById('score_tributos')?.value||5)<=6){
+    actions.estrutural.push(['Tributário','Realizar revisão tributária e avaliar oportunidades de redução de carga fiscal']);
+  }
+  actions.estrutural.push(['BPO Financeiro','Implantar modelo de BPO para gestão contínua de todas as áreas mapeadas']);
+
+  const toRows = (list) => list.length ? list.map(([area,acao])=>
+    `<tr><td><strong>${area}</strong></td><td>${acao}</td></tr>`).join('') :
+    '<tr><td colspan="2" style="color:var(--muted);font-style:italic">Área sem ação crítica identificada</td></tr>';
+
+  return `
+    <table class="action-table">
+      <thead><tr><th colspan="2">⚡ Ações Imediatas (0–30 dias)</th></tr></thead>
+      <tbody>${toRows(actions.imediato)}</tbody>
+    </table>
+    <table class="action-table">
+      <thead><tr><th colspan="2">📅 Ações de Médio Prazo (30–90 dias)</th></tr></thead>
+      <tbody>${toRows(actions.medio)}</tbody>
+    </table>
+    <table class="action-table">
+      <thead><tr><th colspan="2">🏗 Ações Estruturais (90–180 dias)</th></tr></thead>
+      <tbody>${toRows(actions.estrutural)}</tbody>
+    </table>
+  `;
+}
+
+// ── Proposta de valor BPO ────────────────────────────────────────
+function buildBpoValue(scores) {
+  const custoAtual = val('e5_custo_atual') || '–';
+  const tempoSocio = val('e5_tempo_semana');
+  const perdas = val('e5_perdas');
+  const avgScore = (scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(1);
+
+  const dors = [];
+  if(parseFloat(document.getElementById('score_fluxo')?.value||5)<=5) dors.push(['Fluxo de Caixa frágil','Gestão profissional de caixa com projeções e alertas de antecipação']);
+  if(parseFloat(document.getElementById('score_contas')?.value||5)<=5) dors.push(['Contas sem controle centralizado','Central de pagamentos e recebimentos com zero duplicidades']);
+  if(parseFloat(document.getElementById('score_pjpf')?.value||5)<=5) dors.push(['Mistura PJ/PF','Segregação total das finanças com pró-labore estruturado']);
+  if(parseFloat(document.getElementById('score_relat')?.value||5)<=5) dors.push(['Ausência de relatórios gerenciais','DRE, Balanço e KPIs entregues mensalmente com análise comentada']);
+  if(parseFloat(document.getElementById('score_tributos')?.value||5)<=6) dors.push(['Compliance tributário em risco','Controle fiscal e regularização com revisão periódica']);
+  if(!dors.length) dors.push(['Otimização contínua','Suporte especializado para manter e evoluir a maturidade financeira já construída']);
+
+  const dorRows = dors.map(([dor,solucao])=>`<tr><td>${dor}</td><td>${solucao}</td></tr>`).join('');
+
+  return `
+    <table class="action-table">
+      <thead><tr><th>Dor Identificada</th><th>Como o BPO Resolve</th></tr></thead>
+      <tbody>${dorRows}</tbody>
+    </table>
+
+    <h3>ROI Estimado</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-top:8px">
+      <div class="score-box">
+        <div class="num" style="font-size:1.3rem">${tempoSocio||'—'}</div>
+        <div class="lbl">Tempo do sócio na área financeira</div>
+      </div>
+      <div class="score-box">
+        <div class="num" style="font-size:1.3rem">${perdas||'—'}</div>
+        <div class="lbl">Perdas estimadas por falta de controle</div>
+      </div>
+    </div>
+
+    <h3>Comparativo de Custo</h3>
+    <table class="radar-table" style="margin-top:10px">
+      <tr><th>Item</th><th>Situação Atual</th><th>Com BPO</th></tr>
+      <tr><td>Custo mensal atual (R$)</td><td>${custoAtual}</td><td>—</td></tr>
+      <tr><td>Maturidade financeira</td><td>${avgScore}/10</td><td>Objetivo: ≥ 8/10</td></tr>
+      <tr><td>Relatórios gerenciais</td><td>${radio('dre')==='sim'?'Sim':'Não/Parcial'}</td><td>Mensal, comentado</td></tr>
+      <tr><td>Tempo do sócio em finanças</td><td>${tempoSocio||'—'}</td><td>Próximo de zero</td></tr>
+    </table>
+  `;
+}
+
+// ── GENERATE REPORT ──────────────────────────────────────────────
+function maskPhone(el) {
+  let v = el.value.replace(/\D/g,'').slice(0,11);
+  if(v.length <= 10) {
+    v = v.replace(/^(\d{2})(\d{4})(\d{0,4})/, '($1) $2-$3');
+  } else {
+    v = v.replace(/^(\d{2})(\d{5})(\d{0,4})/, '($1) $2-$3');
+  }
+  el.value = v.replace(/-$/, '');
+}
+
+function clearGateError() {
+  document.getElementById('gate-error').style.display = 'none';
+}
+
+function validateAndGenerate() {
+  const email = val('gate_email').trim();
+  const tel = val('gate_telefone').replace(/\D/g,'');
+  const errEl = document.getElementById('gate-error');
+
+  const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+  const telOk = tel.length >= 10 && tel.length <= 11;
+
+  if (!emailOk && !telOk) {
+    errEl.textContent = 'Preencha um e-mail válido e um telefone com DDD para continuar.';
+    errEl.style.display = 'block'; return;
+  }
+  if (!emailOk) {
+    errEl.textContent = 'Informe um e-mail válido (ex: nome@empresa.com.br).';
+    errEl.style.display = 'block'; return;
+  }
+  if (!telOk) {
+    errEl.textContent = 'Informe um telefone com DDD válido (mínimo 10 dígitos).';
+    errEl.style.display = 'block'; return;
+  }
+
+  errEl.style.display = 'none';
+  generateReport();
+}
+
+function generateReport() {
+  const empresa = val('e2_razaosocial') || '[Nome da Empresa]';
+  const cnpj = val('e2_cnpj') || '—';
+  const segmento = val('e2_segmento') || '—';
+  const regime = val('e2_regime') || '—';
+  const fat = val('e2_faturamento') || '—';
+  const hoje = new Date().toLocaleDateString('pt-BR');
+  const emailCliente = val('gate_email') || '—';
+  const telCliente = val('gate_telefone') || '—';
+
+  // Envia dados de contato para dcmfinance2026@gmail.com
+  sendContactData(empresa, segmento, fat, emailCliente, telCliente);
+
+  const scoreVals = DIMENSIONS.map(d => parseFloat(document.getElementById(`score_${d.key}`)?.value || 5));
+  const avg = (scoreVals.reduce((a,b)=>a+b,0)/scoreVals.length).toFixed(1);
+
+  const pfFortes = buildPontosFortes();
+  const pfRiscos = buildRiscos();
+  const obsConsultor = val('r_obs_consultor') || '';
+
+  const maturidadeLabel = avg>=8?'Avançada':avg>=6?'Em Desenvolvimento':avg>=4?'Básica':'Crítica';
+  const maturidadeBadge = avg>=8?'badge-green':avg>=6?'badge-yellow':'badge-red';
+
+  const radarRows = DIMENSIONS.map((d,i)=>{
+    const n = scoreVals[i];
+    const pct = n*10;
+    const cls = scoreColor(n);
+    return `
+      <tr>
+        <td>${d.label}</td>
+        <td>
+          <div style="display:flex;align-items:center;gap:10px">
+            <div class="bar-wrap"><div class="bar-fill ${cls}" style="width:${pct}%"></div></div>
+            <strong>${n}/10</strong>
+          </div>
+        </td>
+        <td>${getDiagLabel(n)}</td>
+        <td>${badgeFromScore(n)}</td>
+      </tr>
+    `;
+  }).join('');
+
+  const html = `
+    <div class="report-header">
+      <h1>IAê <span>Financeiro</span> — Diagnóstico Financeiro</h1>
+      <p class="subtitle">${empresa} · ${cnpj} · Emitido em ${hoje}</p>
+      <p style="font-size:.78rem;color:rgba(255,255,255,.55);margin-top:6px;letter-spacing:.2px;">
+        Contato: ${emailCliente} &nbsp;·&nbsp; ${telCliente}
+      </p>
+    </div>
+
+    <h2>1. Sumário Executivo</h2>
+    <div class="score-summary">
+      <div class="score-box">
+        <div class="num">${avg}</div>
+        <div class="lbl">Nota de Maturidade Financeira</div>
+      </div>
+      <div class="score-box">
+        <div class="num" style="font-size:1.2rem"><span class="badge ${maturidadeBadge}">${maturidadeLabel}</span></div>
+        <div class="lbl">Classificação Geral</div>
+      </div>
+      <div class="score-box">
+        <div class="num">${scoreVals.filter(s=>s<=4).length}</div>
+        <div class="lbl">Áreas Críticas (≤ 4)</div>
+      </div>
+      <div class="score-box">
+        <div class="num">${scoreVals.filter(s=>s>=7).length}</div>
+        <div class="lbl">Áreas Adequadas (≥ 7)</div>
+      </div>
+    </div>
+
+    <h3>Perfil da Empresa</h3>
+    <table class="radar-table">
+      <tr><th>Segmento</th><td>${segmento}</td><th>Regime Tributário</th><td>${regime}</td></tr>
+      <tr><th>Faturamento médio/mês</th><td>R$ ${fat}</td><th>Contador</th><td>${radio('contador')||'—'}</td></tr>
+      <tr><th>ERP / Sistema</th><td>${(()=>{const v=val('e2_erp');return v==='outros_erp'?(val('e2_erp_outros_text')||'Outro sistema'):v||'—';})()}</td><th>Uso do sistema</th><td>${val('e2_erp_uso')||'—'}</td></tr>
+      <tr><th>E-mail</th><td>${emailCliente}</td><th>Telefone</th><td>${telCliente}</td></tr>
+    </table>
+
+    <h3>Pontos Fortes</h3>
+    <ul>${pfFortes.split('\n').filter(l=>l.trim()).map(l=>`<li>${l.replace(/^\d+\.\s*/,'')}</li>`).join('')}</ul>
+
+    <h3>Riscos Identificados</h3>
+    <ul>${pfRiscos.split('\n').filter(l=>l.trim()).map(l=>`<li>${l.replace(/^\d+\.\s*/,'')}</li>`).join('')}</ul>
+
+    <h2>2. Radar de Maturidade Financeira</h2>
+    <table class="radar-table">
+      <thead><tr><th>Dimensão</th><th>Pontuação</th><th>Diagnóstico</th><th>Status</th></tr></thead>
+      <tbody>${radarRows}</tbody>
+    </table>
+
+    <h2>3. Diagnóstico Detalhado por Área</h2>
+    ${buildAreaDiag(scoreVals)}
+
+    <h2>4. Plano de Ação Recomendado</h2>
+    ${buildActionPlan(scoreVals)}
+
+    <h2>5. Proposta de Valor do BPO Financeiro</h2>
+    ${buildBpoValue(scoreVals)}
+
+    ${obsConsultor ? `<h2>6. Observações do Consultor</h2><p>${obsConsultor}</p>` : ''}
+
+    <hr style="margin:32px 0;border:none;border-top:1px solid var(--border)">
+    <p style="font-size:.78rem;color:var(--muted);text-align:center;letter-spacing:.2px">
+      Este diagnóstico é uma cortesia estratégica da <strong>IAê Financeiro</strong> e não substitui uma análise contábil ou auditoria formal.<br>
+      Emitido em ${hoje} · Uso exclusivo para prospecção de BPO Financeiro · <em>Inteligência que organiza. Estratégia que transforma.</em>
+    </p>
+  `;
+
+  const output = document.getElementById('report-output');
+  output.innerHTML = html;
+  output.style.display = 'block';
+  setTimeout(()=>output.scrollIntoView({behavior:'smooth', block:'start'}), 100);
+}
+
+// Auto-suggest scores when entering radar tab
+document.querySelectorAll('nav.tabs button')[5].addEventListener('click', ()=>{
+  setTimeout(suggestScores, 50);
+});
+</script>
+</body>
+</html>
